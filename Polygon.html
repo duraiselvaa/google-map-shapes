@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google map Shapes</title>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry&libraries=drawing"></script>
+  <script type="text/javascript" src="<spring:url value="/js/google_maps_api.js"/>"></script>
+  <script type="text/javascript">
+ $(document).ready(function () {
+     var map = new google.maps.Map(document.getElementById('map_div'),
+     	{ center: new google.maps.LatLng(20.37278, -10.35461399999997), zoom : 2, minZoom : 3, maxZoom : 15, mapTypeId: google.maps.MapTypeId.ROADMAP, scaleControl: true });
+     var isClosed = false;
+     var poly = new google.maps.Polyline({ map: map, path: [], strokeColor: "#FF0000", strokeOpacity: 1.0, strokeWeight: 2 });
+     google.maps.event.addListener(map, 'click', function (clickEvent) {
+         if (isClosed)
+             return;
+         var markerIndex = poly.getPath().length;
+         var isFirstMarker = markerIndex === 0;
+         var marker = new google.maps.Marker({ map: map, position: clickEvent.latLng, draggable: true });
+         if (isFirstMarker) {
+             google.maps.event.addListener(marker, 'click', function () {
+                 if (isClosed)
+                     return;
+                 var path = poly.getPath();
+                 poly.setMap(null);
+                 poly = new google.maps.Polygon({ map: map, path: path, strokeColor: "#FF0000", strokeOpacity: 0.8, strokeWeight: 2, fillColor: "#FF0000", fillOpacity: 0.35 });
+                 isClosed = true;
+             });
+         }
+         google.maps.event.addListener(marker, 'drag', function (dragEvent) {
+             poly.getPath().setAt(markerIndex, dragEvent.latLng);
+         });
+         poly.getPath().push(clickEvent.latLng);
+     });
+ });
+
+  </script>
+</head>
+<body>
+
+<div class="container">
+
+  <form class="form-horizontal">
+    <div style="float: right;" class="control-group">
+    <label class="control-label" for="overlayType">Shapes</label>
+    <div class="controls">
+       <select id="overlayType">
+         <option value="manager">Circle/Rectangle</option>
+         <option value="polygon">Polygon</option>
+       </select>
+    </div>
+    </div>
+  </form>
+  <div id="map_div" style="position: relative; width: 940px; height: 600px;"></div>
+
+  <div class="form-actions">
+    <input type="button" id="clearCurrentShape" value="Clear Current Search" class="btn">
+  </div>
+</body>
+</html>
