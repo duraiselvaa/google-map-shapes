@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google map Rectangle Drawing</title>
+  <meta charset="UTF-8">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=geometry&libraries=drawing"></script>
+  <script type="text/javascript" src="<spring:url value="/js/google_maps_api.js"/>"></script>
+  <script type="text/javascript">
+	var map;
+	var rect;
+	var drawingManager;
+
+	$(document).ready(initialize);
+
+	function initialize() {
+		var chicago = new google.maps.LatLng(20.37278, -10.35461399999997);
+		var myOptions = {
+			zoom : 2,
+			minZoom : 3,
+			maxZoom : 15,
+			center: chicago,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		map = new google.maps.Map($('#map_div')[0], myOptions);
+
+		drawingManager = new google.maps.drawing.DrawingManager({
+			drawingMode: google.maps.drawing.OverlayType.RECTANGLE,
+			drawingControl: true,
+			drawingControlOptions: {
+				position: google.maps.ControlPosition.TOP_CENTER,
+				drawingModes: [google.maps.drawing.OverlayType.RECTANGLE]
+			},
+			rectangleOptions: {
+				editable: true,
+				fillColor: "red",
+				fillOpacity: 0.1,
+				map: map,
+				strokeColor: "black",
+				strokeWeight: 1
+			}
+		});
+		drawingManager.setMap(map);
+
+
+		google.maps.event.addListener(drawingManager, 'rectanglecomplete', function(subject) {
+			if (rect) {
+				google.maps.event.clearInstanceListeners(rect);
+				rect.setMap(null);
+			}
+			rect = subject;
+		});
+	}
+  </script>
+</head>
+<body>
+
+<div class="container">
+  <div id="map_div" style="position: relative; width: 940px; height: 600px;"></div>
+</body>
+</html>
